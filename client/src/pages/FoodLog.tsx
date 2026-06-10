@@ -1,6 +1,6 @@
 
 import { useAppContext } from "../context/AppContext";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect,  useRef, useState } from "react";
 import type { FoodEntry, FormData } from "../types";
 import Card from "../components/ui/Card";
 import {
