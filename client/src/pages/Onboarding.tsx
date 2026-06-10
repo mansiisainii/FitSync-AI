@@ -14,10 +14,9 @@ import Input from "../components/ui/Input";
 import Button from "../components/ui/Button";
 import toast from "react-hot-toast";
 // import { stringify } from "querystring";
-import mockApi from "../assets/mockApi";
-import type { UserData } from "../types";
 import { ageRanges, goalOptions } from "../assets/assets";
 import Slider from "../components/ui/Slider";
+import api from "../configs/api";
 
 const Onboarding = () => {
   const [step, setStep] = useState(1);
@@ -64,16 +63,12 @@ const Onboarding = () => {
       };
       localStorage.setItem("fitnessUser", JSON.stringify(userData));
       try {
-        await mockApi.user.update(
-          user?.id || "",
-          userData as Partial<UserData>,
-        );
-
+        await api.put(`/api/users/${user?.id}`, userData);
         toast.success("Profile updated successfully");
         setOnboardingCompleted(true);
-        await fetchUser(user?.token || "");
-      } catch (error) {
-        toast.error("Failed to update profile");
+        fetchUser(user?.token || "");
+      } catch (error: any) {
+        toast.error(error.message);
       }
     }
   };
@@ -298,4 +293,5 @@ const Onboarding = () => {
     </>
   );
 };
+
 export default Onboarding;

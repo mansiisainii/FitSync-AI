@@ -18,6 +18,7 @@ import CaloriesChart from "../components/CaloriesChart";
 const Dashboard = () => {
   const { user, allActivityLogs, allFoodLogs } = useAppContext();
 
+
   const [todayFood, setTodayFood] = useState<FoodEntry[]>([]);
   const [todayActivities, setTodayActivities] = useState<ActivityEntry[]>([]);
 
