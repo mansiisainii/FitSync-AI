@@ -64,7 +64,7 @@ const Login = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   value={username}
                   type="text"
-                  placeholder="Enter Username"
+                  placeholder="Enter username"
                   className="login-input"
                   required
                 />
@@ -83,7 +83,7 @@ const Login = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
                 type="email"
-                placeholder="Enter Your Email"
+                placeholder="Enter your email"
                 className="login-input"
                 required
               />
@@ -100,7 +100,7 @@ const Login = () => {
               <input
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
-                placeholder="Enter Your Password"
+                placeholder="Enter your password"
                 className="login-input pr-10"
                 required
                 type={showPassword ? "text" : "password"}
