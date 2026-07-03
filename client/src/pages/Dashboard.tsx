@@ -69,7 +69,7 @@ const Dashboard = () => {
       {/* header */}
       <div className="dashboard-header">
         <p className="text-emerald-100 text-sm font-medium">Welcome Back</p>
-        <h1 className="text-2xl font-bold mt-1">{`Hi there! 👋 ${user?.username}`}</h1>
+        <h1 className="text-2xl font-bold mt-1">{`Hi there! ${user?.username}`}</h1>
 
         {/* motivation card */}
         <div className="mt-6 bg-white/20 backdrop-blur-sm rounded-2xl p-4">
@@ -194,9 +194,9 @@ const Dashboard = () => {
               <div>
                 <p className="text-slate-400 text-sm">Your Goal</p>
                 <p className="text-white font-semibold capitalize">
-                  {user.goal === "lose" && "🔥 Lose Weight"}
-                  {user.goal === "maintain" && "🥇 Maintain Weight"}
-                  {user.goal === "gain" && "💪 Gain Muscle"}
+                  {user.goal === "lose" && "Lose Weight"}
+                  {user.goal === "maintain" && "Maintain Weight"}
+                  {user.goal === "gain" && "Gain Muscle"}
                 </p>
               </div>
             </div>
