@@ -126,7 +126,7 @@ export const getMotivationalMessage = (caloriesConsumed: number, activeMinutes: 
     const percentage = (caloriesConsumed / DAILY_CALORIE_LIMIT) * 100;
 
     if (caloriesConsumed === 0 && activeMinutes === 0) {
-        return { text: "Ready to crush today? Start logging!", emoji: "💪" };
+        return { text: "Ready to crush today? Start logging!"};
     }
     if (percentage > 100) {
         return { text: "Over limit, but tomorrow is a new day!", emoji: "🌅" };
