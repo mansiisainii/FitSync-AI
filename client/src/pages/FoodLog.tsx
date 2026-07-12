@@ -67,7 +67,8 @@ const FoodLog = () => {
         mealType: "",
       });
       setShowForm(false);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -81,7 +82,8 @@ const FoodLog = () => {
       if (!confirm) return;
       await api.delete(`/api/food-logs/${documentId}`);
       setAllFoodLogs((prev) => prev.filter((e) => e.documentId !== documentId));
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -148,7 +150,8 @@ const FoodLog = () => {
       if (inputRef.current) {
         inputRef.current.value = "";
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     } finally {
@@ -160,6 +163,7 @@ const FoodLog = () => {
     (() => {
       loadEntries();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allFoodLogs]);
   return (
     <div className="page-container">

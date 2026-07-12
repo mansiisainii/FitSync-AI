@@ -67,7 +67,8 @@ const Onboarding = () => {
         toast.success("Profile updated successfully");
         setOnboardingCompleted(true);
         fetchUser(user?.token || "");
-      } catch (error: any) {
+      } catch (err: unknown) {
+        const error = err as { message?: string };
         toast.error(error.message);
       }
     }

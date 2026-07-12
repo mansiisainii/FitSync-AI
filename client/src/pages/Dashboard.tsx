@@ -40,6 +40,7 @@ const Dashboard = () => {
     (() => {
       loadUserData();
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allActivityLogs, allFoodLogs]);
 
   const totalCalories: number = todayFood.reduce(

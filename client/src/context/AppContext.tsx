@@ -33,7 +33,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
       localStorage.setItem("token", data.jwt);
       api.defaults.headers.common["Authorization"] = `Bearer ${data.jwt}`;
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -51,7 +52,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
       localStorage.setItem("token", data.jwt);
       api.defaults.headers.common["Authorization"] = `Bearer ${data.jwt}`;
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -67,11 +69,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setOnboardingCompleted(true);
       }
       api.defaults.headers.common["Authorization"] = `Bearer ${data.jwt}`;
-    } catch (error: any) {
+      setIsUserFetched(true);
+      return true;
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number, data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      if (error?.response?.status === 401) {
+        localStorage.removeItem("token");
+        setUser(null);
+      } else {
+        toast.error(error?.response?.data?.error?.message || error?.message);
+      }
+      setIsUserFetched(true);
+      return false;
     }
-    setIsUserFetched(true);
   };
 
   const fetchFoodLogs = async (token: string) => {
@@ -80,7 +91,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAllFoodLogs(data);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -92,7 +104,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAllActivityLogs(data);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
       toast.error(error?.response?.data?.error?.message || error?.message);
     }
@@ -110,10 +123,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const token = localStorage.getItem("token");
     if (token) {
       (async () => {
-        await fetchUser(token);
-        await fetchFoodLogs(token);
-        await fetchActivityLogs(token);
+        const success = await fetchUser(token);
+        if (success) {
+          await fetchFoodLogs(token);
+          await fetchActivityLogs(token);
+        }
       })();
+    } else {
+      setIsUserFetched(true);
     }
   }, []);
 
@@ -136,4 +153,5 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => useContext(AppContext);

@@ -1,8 +1,8 @@
 import { dummyUser, dummyFoodLogs, dummyActivityLogs } from "../assets/assets";
-import type { UserData, FoodEntry, ActivityEntry, FormData } from "../types";
+import type { UserData, FoodEntry, ActivityEntry } from "../types";
 
 interface DB {
-    user: any;
+    user: UserData | null;
     foodLogs: FoodEntry[];
     activityLogs: ActivityEntry[];
 }
@@ -28,9 +28,9 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const mockApi = {
     auth: {
-        login: async (credentials: any) => {
+        login: async (credentials: Record<string, string>) => {
             await delay(500);
-            let db = getDB();
+            const db = getDB();
 
             if (!db.user) {
                 db.user = {
@@ -49,7 +49,7 @@ const mockApi = {
                 },
             };
         },
-        register: async (credentials: any) => {
+        register: async (credentials: Record<string, string>) => {
             await delay(500);
             const db = getDB();
 
@@ -99,7 +99,7 @@ const mockApi = {
             const db = getDB();
             return { data: db.foodLogs };
         },
-        create: async (payload: { data: FormData | any }) => {
+        create: async (payload: { data: { name: string, calories: number, mealType: string } }) => {
             await delay(300);
             const db = getDB();
             const newEntry: FoodEntry = {
@@ -154,7 +154,7 @@ const mockApi = {
         }
     },
     imageAnalysis: {
-        analyze: async (_formData: any) => {
+        analyze: async () => {
             await delay(1500);
             const foods = [
                 { name: "Apple", calories: 95 },
