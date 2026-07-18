@@ -1,7 +1,6 @@
-
 import { useAppContext } from "../context/AppContext";
-import { useEffect,  useRef, useState } from "react";
-import type { FoodEntry, FormData } from "../types";
+import { useEffect, useRef, useState } from "react";
+import type { FoodEntry, FormData as FoodFormData } from "../types";
 import Card from "../components/ui/Card";
 import {
   mealColors,
@@ -11,7 +10,6 @@ import {
 } from "../assets/assets";
 import Button from "../components/ui/Button";
 import {
-  
   Loader2Icon,
   PlusIcon,
   SparkleIcon,
@@ -23,12 +21,14 @@ import Select from "../components/ui/Select";
 import toast from "react-hot-toast";
 import api from "../configs/api";
 
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
 const FoodLog = () => {
   const { allFoodLogs, setAllFoodLogs } = useAppContext();
 
   const [entries, setEntries] = useState<FoodEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FoodFormData>({
     name: "",
     calories: 0,
     mealType: "",
@@ -60,7 +60,7 @@ const FoodLog = () => {
     }
     try {
       const { data } = await api.post("/api/food-logs", { data: formData });
-      setAllFoodLogs(prev => [...prev, data]);
+      setAllFoodLogs((prev) => [...prev, data]);
       setFormData({
         name: "",
         calories: 0,
@@ -68,9 +68,16 @@ const FoodLog = () => {
       });
       setShowForm(false);
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
+      const error = err as {
+        response?: { data?: { error?: { message?: string } } };
+        message?: string;
+      };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(
+        error?.response?.data?.error?.message ||
+          error?.message ||
+          "Something went wrong",
+      );
     }
   };
 
@@ -81,27 +88,33 @@ const FoodLog = () => {
       );
       if (!confirm) return;
       await api.delete(`/api/food-logs/${documentId}`);
-      setAllFoodLogs((prev) => prev.filter((e) => e.documentId !== documentId));
+      setAllFoodLogs((prev) =>
+        prev.filter((e) => e.documentId !== documentId),
+      );
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
+      const error = err as {
+        response?: { data?: { error?: { message?: string } } };
+        message?: string;
+      };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(
+        error?.response?.data?.error?.message ||
+          error?.message ||
+          "Something went wrong",
+      );
     }
   };
 
   const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
 
-  //group entries by meal type
-  const groupedEntries: Record<
-    "breakfast" | "lunch" | "dinner" | "snack",
-    FoodEntry[]
-  > = entries.reduce(
+  // group entries by meal type
+  const groupedEntries: Record<MealType, FoodEntry[]> = entries.reduce(
     (acc, entry) => {
       if (!acc[entry.mealType]) acc[entry.mealType] = [];
       acc[entry.mealType].push(entry);
       return acc;
     },
-    {} as Record<"breakfast" | "lunch" | "dinner" | "snack", FoodEntry[]>,
+    {} as Record<MealType, FoodEntry[]>,
   );
 
   const handleQuickAdd = (activityName: string) => {
@@ -113,13 +126,12 @@ const FoodLog = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-
-    //Implement image analysis
+    // Implement image analysis
     setLoading(true);
-    const formData = new FormData();
-    formData.append("image", file);
+    const imageFormData = new FormData();
+    imageFormData.append("image", file);
     try {
-      const { data } = await api.post("/api/image-analysis", formData);
+      const { data } = await api.post("/api/image-analysis", imageFormData);
       const result = data.result;
       let mealType = "";
 
@@ -138,22 +150,28 @@ const FoodLog = () => {
         return toast.error("Missing data");
       }
 
-      //save result to db
+      // save result to db
       const { data: newEntry } = await api.post("/api/food-logs", {
         data: { name: result.name, calories: result.calories, mealType },
       });
-    
 
-      setAllFoodLogs(prev => [...prev, newEntry]);
+      setAllFoodLogs((prev) => [...prev, newEntry]);
 
-      //reset input
+      // reset input
       if (inputRef.current) {
         inputRef.current.value = "";
       }
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
+      const error = err as {
+        response?: { data?: { error?: { message?: string } } };
+        message?: string;
+      };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(
+        error?.response?.data?.error?.message ||
+          error?.message ||
+          "Something went wrong",
+      );
     } finally {
       setLoading(false);
     }
@@ -165,6 +183,7 @@ const FoodLog = () => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allFoodLogs]);
+
   return (
     <div className="page-container">
       {/* Header */}
@@ -318,65 +337,65 @@ const FoodLog = () => {
           </Card>
         ) : (
           <div className="space-y-4">
-            {["breakfast", "lunch", "dinner", "snack"].map((mealType) => {
-              const mealTypeKey = mealType as keyof typeof groupedEntries;
-              if (!groupedEntries[mealTypeKey]) return null;
+            {(["breakfast", "lunch", "dinner", "snack"] as MealType[]).map(
+              (mealType) => {
+                if (!groupedEntries[mealType]) return null;
 
-              const MealIcon = mealIcons[mealTypeKey];
-              const mealCalories = groupedEntries[mealTypeKey].reduce(
-                (sum, e) => sum + e.calories,
-                0,
-              );
-              return (
-                <Card key={mealType}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center ${mealColors[mealTypeKey]}`}
-                      >
-                        <MealIcon className="size-5" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-slate-800 dark:text-white capitalize">
-                          {mealType}
-                        </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                          {groupedEntries[mealTypeKey].length} items
-                        </p>
-                      </div>
-                    </div>
-                    <p className="font-semibold text-slate-700 dark:text-slate-200">
-                      {mealCalories} kcal
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    {groupedEntries[mealTypeKey].map((entry) => (
-                      <div key={entry.id} className="food-entry-item">
-                        <div className="flex-1">
-                          <p className="font-medium text-slate-700 dark:text-slate-200">
-                            {entry.name}
+                const MealIcon = mealIcons[mealType];
+                const mealCalories = groupedEntries[mealType].reduce(
+                  (sum, e) => sum + e.calories,
+                  0,
+                );
+                return (
+                  <Card key={mealType}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${mealColors[mealType]}`}
+                        >
+                          <MealIcon className="size-5" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-slate-800 dark:text-white capitalize">
+                            {mealType}
+                          </h3>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {groupedEntries[mealType].length} items
                           </p>
-                          <p className="ext-sm text-slate-400">{}</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                            {entry.calories} kcal
-                          </span>
-                          <button
-                            onClick={() =>
-                              handleDelete(entry?.documentId || "")
-                            }
-                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          >
-                            <Trash2Icon className="w-4 h-4" />
-                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </Card>
-              );
-            })}
+                      <p className="font-semibold text-slate-700 dark:text-slate-200">
+                        {mealCalories} kcal
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {groupedEntries[mealType].map((entry) => (
+                        <div key={entry.id} className="food-entry-item">
+                          <div className="flex-1">
+                            <p className="font-medium text-slate-700 dark:text-slate-200">
+                              {entry.name}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                              {entry.calories} kcal
+                            </span>
+                            <button
+                              onClick={() =>
+                                handleDelete(entry?.documentId || "")
+                              }
+                              className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                            >
+                              <Trash2Icon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                );
+              },
+            )}
           </div>
         )}
       </div>

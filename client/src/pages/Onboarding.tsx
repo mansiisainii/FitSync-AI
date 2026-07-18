@@ -69,7 +69,7 @@ const Onboarding = () => {
         fetchUser(user?.token || "");
       } catch (err: unknown) {
         const error = err as { message?: string };
-        toast.error(error.message);
+        toast.error(error.message || "Something went wrong");
       }
     }
   };

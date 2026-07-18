@@ -1,8 +1,22 @@
 import { dummyUser, dummyFoodLogs, dummyActivityLogs } from "../assets/assets";
-import type { UserData, FoodEntry, ActivityEntry } from "../types";
+import type { FoodEntry, ActivityEntry } from "../types";
+
+// Local mock-only user type — includes auth fields not present in UserData
+interface MockUser {
+    id: string;
+    username: string;
+    email: string;
+    age: number;
+    weight: number;
+    height: number | null;
+    goal: "lose" | "maintain" | "gain";
+    dailyCalorieIntake?: number;
+    dailyCalorieBurn?: number;
+    createdAt: string;
+}
 
 interface DB {
-    user: UserData | null;
+    user: MockUser | null;
     foodLogs: FoodEntry[];
     activityLogs: ActivityEntry[];
 }
@@ -35,6 +49,7 @@ const mockApi = {
             if (!db.user) {
                 db.user = {
                     ...dummyUser,
+                    id: "user_" + Date.now(),
                     email: credentials.identifier || credentials.email,
                     username: (credentials.identifier || credentials.email).split('@')[0],
                 };
@@ -83,7 +98,7 @@ const mockApi = {
             const db = getDB();
             return { data: db.user || dummyUser };
         },
-        update: async (_id: string, updates: Partial<UserData>) => {
+        update: async (_id: string, updates: Partial<MockUser>) => {
             await delay(300);
             const db = getDB();
             if (db.user) {
@@ -107,7 +122,7 @@ const mockApi = {
                 documentId: "doc_food_" + Date.now(),
                 name: payload.data.name,
                 calories: payload.data.calories,
-                mealType: payload.data.mealType,
+                mealType: payload.data.mealType as FoodEntry["mealType"],
                 date: new Date().toISOString().split("T")[0],
                 createdAt: new Date().toISOString(),
             };

@@ -36,7 +36,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -55,11 +55,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   };
 
-  const fetchUser = async (token: string) => {
+  const fetchUser = async (token: string): Promise<boolean> => {
     try {
       const { data } = await api.get("/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -68,7 +68,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (data?.age && data?.weight && data?.goal) {
         setOnboardingCompleted(true);
       }
-      api.defaults.headers.common["Authorization"] = `Bearer ${data.jwt}`;
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setIsUserFetched(true);
       return true;
     } catch (err: unknown) {
@@ -78,7 +78,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.removeItem("token");
         setUser(null);
       } else {
-        toast.error(error?.response?.data?.error?.message || error?.message);
+        toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
       }
       setIsUserFetched(true);
       return false;
@@ -94,7 +94,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -107,7 +107,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -132,6 +132,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       setIsUserFetched(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const value = {

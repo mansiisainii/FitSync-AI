@@ -56,7 +56,7 @@ const ActivityLog = () => {
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   };
 
@@ -89,7 +89,7 @@ setAllActivityLogs(prev=>prev.filter((a)=>a.documentId !== documentId))
   } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
       console.log(error);
-      toast.error(error?.response?.data?.error?.message || error?.message);
+      toast.error(error?.response?.data?.error?.message || error?.message || "Something went wrong");
     }
   }
 
